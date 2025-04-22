@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import  Libro, Sucursal
+from .models import  Libro, Sucursal, User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
