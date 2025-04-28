@@ -21,13 +21,12 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     nombre = models.CharField(max_length=100, blank=True, null=True)
     correo = models.EmailField(unique=True)
-    contrasena = models. CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'correo'
-    REQUIRED_FIELDS = ['nombre', 'correo', 'contrasena']
+    REQUIRED_FIELDS = ['nombre', 'correo']
 
     objects = UserManager()
 
