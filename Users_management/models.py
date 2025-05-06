@@ -8,7 +8,8 @@ class UserManager(BaseUserManager):
             raise ValueError('El correo es obligatorio')
         correo = self.normalize_email(correo)
         user = self.model(correo=correo, **extra_fields)
-        user.set_password(contrasena)
+        if contrasena:
+            user.set_password(contrasena)
         user.save(using=self._db)
         return user
 
@@ -26,7 +27,7 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'correo'
-    REQUIRED_FIELDS = ['nombre', 'correo']
+    REQUIRED_FIELDS = ['nombre']
 
     objects = UserManager()
 
