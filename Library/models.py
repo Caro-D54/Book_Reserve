@@ -10,8 +10,8 @@ class User(models.Model):
     direccion = models.CharField(max_length=255)
     fecha_devolucion = models.DateField(blank=True, null=True)
 
-    def __str__(self):
-        return self.nombre
+    def _str_(self):
+        return self.nombre 
 
 class Libro(models.Model):
     titulo = models.CharField(max_length=100)
