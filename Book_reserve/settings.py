@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Library',
+    'Users_management',
     'rest_framework',
     'corsheaders',
 ]
@@ -134,3 +135,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = []
+
+AUTH_USER_MODEL = 'Users_management.User' 
+
+AUTHENTICATION_BACKENDS = ['Users_management.backends.EmailBackend']
+
+DEFAULT_AUTHENTICATION_CLASSES = [
+    'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
