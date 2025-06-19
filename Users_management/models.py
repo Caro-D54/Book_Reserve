@@ -3,25 +3,20 @@ from django.db import models
 
 # Create your models here.
 class UserManager(BaseUserManager):
-    def create_user(self, correo, contrasena=None, **extra_fields):
-        if not correo:
+    def create_user(self, mail, password=None, **extra_fields):
+        if not mail:
             raise ValueError('El correo es obligatorio')
-        correo = self.normalize_email(correo)
-        user = self.model(correo=correo, **extra_fields)
-        if contrasena:
-            user.set_password(contrasena)
+        email = self.normalize_email(mail)
+        user = self.model(mail=email, **extra_fields)
+        if password:
+            user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, correo, contrasena=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-
-        return self.create_user(correo, contrasena, **extra_fields)
     
 class User(AbstractBaseUser):
-    nombre = models.CharField(max_length=100, blank=True, null=True)
-    correo = models.EmailField(unique=True)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    mail = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

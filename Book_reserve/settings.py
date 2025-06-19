@@ -136,7 +136,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = []
 
-AUTH_USER_MODEL = 'Users_management.User'  # Cambia 'app_name.User' por el nombre de tu aplicación y modelo de usuario
-  # Cambia 'app_name.User' por el nombre de tu aplicación y modelo de usuario
+AUTH_USER_MODEL = 'Users_management.User' 
 
 AUTHENTICATION_BACKENDS = ['Users_management.backends.EmailBackend']
+
+DEFAULT_AUTHENTICATION_CLASSES = [
+    'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
