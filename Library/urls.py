@@ -4,9 +4,9 @@ from .views import  LibroViewSet, SucursalViewSet
 
 router = DefaultRouter()
 
-router.register(r'libros', LibroViewSet)
-router.register(r'sucursales', SucursalViewSet)
+router.register(r'libros', LibroViewSet, basename='libro')
+router.register(r'sucursales', SucursalViewSet, basename='sucursal')
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path('', include(router.urls)),
 ]

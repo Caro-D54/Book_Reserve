@@ -1,51 +1,43 @@
-from django.contrib.auth import authenticate
-from rest_framework.viewsets import ModelViewSet
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from Users_management.models import User
-from .serializers import UserSerializer
+User = get_user_model()
 
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]
 
-class UserViewSet(ModelViewSet):
-    """
-    CRUD de usuarios. Por defecto solo accesible para administradores.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]  # solo admin puede listar/crear usuarios
-
-
-class AuthenticateUserView(APIView):
-    """
-    Vista de autenticación personalizada.
-    Recibe mail y password, valida credenciales y devuelve tokens JWT.
-    """
-    def post(self, request):
-        # Ajusta los nombres de los campos según lo que envíe tu frontend
-        email = request.data.get('mail')       # tu modelo usa 'mail'
-        password = request.data.get('password')
-
-        user = authenticate(request, mail=email, password=password)
-
-        if user is None:
-            return Response(
-                {"mensaje": "Usuario o contraseña incorrectos"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        # Generar tokens JWT para el usuario autenticado
-        refresh = RefreshToken.for_user(user)
+    def get(self, request):
         return Response({
-            "mensaje": "Usuario autenticado",
-            "user": {
-                "id": user.id,
-                "mail": user.mail,
-                "name": user.name,
-            },
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-        }, status=status.HTTP_200_OK)
+            "message": f"Acceso Concedido para {request.user.mail}",
+            "user_id": request.user.id,
+            "mail": request.user.mail,
+        })
+    
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        mail = attrs.get('mail') or attrs.get('username')
+        password = attrs.get('password')
+
+        if not mail or not password:
+            raise serializers.ValidationError("Credenciales requeridas")
+
+        user = authenticate(mail=mail, password=password)
+        if user is None:
+            user = authenticate(username=mail, password=password)
+        if user is None:
+            raise serializers.ValidationError("Credenciales incorrectas")
+
+        data = super().validate({'username': user.mail, 'password': password})
+        data['user_id'] = user.id
+        data['mail'] = user.mail
+        data['name'] = getattr(user, 'name', '')
+        return data
+
+
+class EmailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = EmailTokenObtainPairSerializer
