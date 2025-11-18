@@ -17,6 +17,7 @@ class LibroViewSet(viewsets.ModelViewSet):
 class SucursalViewSet(viewsets.ModelViewSet):
     queryset = Sucursal.objects.all()
     serializer_class = SucursalSerializer
+    permission_classes = [IsAdminUser]
 
 
 # --- CRUD de Solicitudes con acciones personalizadas ---
