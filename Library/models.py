@@ -29,3 +29,18 @@ class Sucursal(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+
+class Request(models.Model):
+    STATUS_CHOICES = (
+        ("Pendiente", "Pendiente"),
+        ("Aprobada", "Aprobada"),
+        ("Rechazada", "Rechazada"),
+    )
+
+    title = models.CharField(max_length=200)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pendiente")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.status})"
