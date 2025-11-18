@@ -10,20 +10,20 @@ from django.contrib.auth import authenticate, get_user_model
 
 User = get_user_model()
 
-# --- Serializer para login con email ---
-class EmailTokenObtainPairSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+# --- Serializer para login con mail ---
+class MailTokenObtainPairSerializer(serializers.Serializer):
+    mail = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        email = attrs.get("email")
+        mail = attrs.get("mail")
         password = attrs.get("password")
 
-        if not email or not password:
+        if not mail or not password:
             raise serializers.ValidationError("Credenciales requeridas")
 
-        # Autenticación usando email como username
-        user = authenticate(username=email, password=password)
+        # Autenticación usando mail como USERNAME_FIELD
+        user = authenticate(mail=mail, password=password)
         if user is None:
             raise serializers.ValidationError("Credenciales incorrectas")
 
@@ -32,38 +32,39 @@ class EmailTokenObtainPairSerializer(serializers.Serializer):
             "refresh": str(refresh),
             "access": str(refresh.access_token),
             "user_id": user.id,
-            "email": user.email,
-            "username": user.username,
+            "mail": user.mail,
+            "name": getattr(user, "name", None),
             "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
         }
 
-class EmailTokenObtainPairView(TokenObtainPairView):
-    serializer_class = EmailTokenObtainPairSerializer
+class MailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MailTokenObtainPairSerializer
 
 
 # --- Registro de usuario ---
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def register_user(request):
-    email = request.data.get("email")
-    username = request.data.get("username") or email.split("@")[0]
+    mail = request.data.get("mail")
+    name = request.data.get("name", "")
     password = request.data.get("password")
 
-    if not email or not password:
+    if not mail or not password:
         return Response({"error": "Todos los campos son requeridos"}, status=status.HTTP_400_BAD_REQUEST)
 
-    if User.objects.filter(email=email).exists():
+    if User.objects.filter(mail=mail).exists():
         return Response({"error": "El correo ya existe"}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = User.objects.create_user(username=username, email=email, password=password)
+    user = User.objects.create_user(mail=mail, password=password, name=name)
     refresh = RefreshToken.for_user(user)
 
     return Response({
         "access": str(refresh.access_token),
         "refresh": str(refresh),
         "user_id": user.id,
-        "email": user.email,
-        "username": user.username,
+        "mail": user.mail,
+        "name": user.name,
     }, status=status.HTTP_201_CREATED)
 
 
@@ -75,8 +76,8 @@ class MeView(APIView):
         user = request.user
         return Response({
             "id": user.id,
-            "email": user.email,
-            "username": user.username,
+            "mail": user.mail,
+            "name": getattr(user, "name", None),
             "is_staff": user.is_staff,
             "is_superuser": user.is_superuser,
             "is_active": user.is_active,
