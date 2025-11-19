@@ -3,7 +3,7 @@ from .models import Libro, Sucursal
 
 @admin.register(Libro)
 class LibroAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "autor", "genero", "idioma", "precio_prestamo_fisico")
+    list_display = ("titulo", "autor", "genero", "idioma")
     search_fields = ("titulo", "autor", "genero")
 
 @admin.register(Sucursal)
